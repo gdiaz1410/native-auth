@@ -1,17 +1,18 @@
 import React from 'react';
 import { TextInput, View, Text } from 'react-native';
 // passed down props from LoginForm
-const Field = ({ label, value, onChangeText }) => {  // whatever text passed in as label prop will populate the text tag
+const Field = ({ label, value, onChangeText, placeholder }) => {  // whatever text passed in as label prop will populate the text tag
   const { inputStyle, labelStyle, containerStyle } = styles;
 
   return (
     <View style={containerStyle}>
       <Text style={labelStyle}>{label}</Text>
       <TextInput
+        placeholder={placeholder}
+        autoCorrect={false}
         style={inputStyle}
         value={value}
         onChangeText={onChangeText}
-        style={{ height: 20, width: 100 }}
       />
     </View>
   )
