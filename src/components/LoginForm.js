@@ -1,9 +1,53 @@
 import React, { Component } from 'react';
-import { Button, Card, CardSection, Field } from './common';
+import { Text } from 'react-native';
+import firebase from 'firebase';
+import { Button, Card, CardSection, Field, Spinner } from './common';
 
 
 class LoginForm extends Component {
-  state = { email: '', password: '' };
+  state = { email: '', password: '', error: '', loading: false };
+
+  onButtonPress() {
+    const { email, password } = this.state;
+
+    this.setState({ error: '', loading: true });
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      // successful sign in
+      .then(this.onLoginSuccess.bind(this)) // any function passed will be done if login is successful. References onLoginSuccess function
+      // right email but wrong password
+      .catch(() => {
+        // make new account
+        firebase.auth().createUserWithEmailAndPassword(email, password) // create account
+          .then(this.onLoginSuccess.bind(this))
+          // valid email but wrong password
+          .catch(this.onLoginFail.bind(this));
+      });
+  }
+
+  onLoginFail() {
+    this.setState({ error: 'Authentication failed', loading: false })
+  }
+
+  onLoginSuccess() {
+    this.setState({
+      email: '',
+      password: '',
+      loading: 'false',
+      error: ''
+    });
+  }
+
+  renderButton() {
+    if(this.state.loading) {
+      return <Spinner size="small" />;
+    }
+    return ( // else
+      <Button onPress={this.onButtonPress.bind(this)}>
+        Log In
+      </Button>
+    );
+  }
 
   render() {
     return (
@@ -31,15 +75,25 @@ class LoginForm extends Component {
         />
       </CardSection>
 
+      <Text style={styles.errorTextStyle}>
+        {this.state.error}
+      </Text>
+
       <CardSection>
-        <Button>
-          Log In
-        </Button>
+        {this.renderButton()}
       </CardSection>
     </Card>
     );
   }
 }
 
+
+const styles = {
+  errorTextStyle: {
+    fontSize: 20,
+    alignSelf: 'center',
+    color: 'red'
+  }
+};
 
 export default LoginForm;
